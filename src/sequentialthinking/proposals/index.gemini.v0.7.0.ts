@@ -244,7 +244,7 @@ You should:
 const server = new Server(
   {
     name: "sequential-thinking-server",
-    version: "0.2.0",
+    version: "0.7.0.gemini-dev", // Updated version
   },
   {
     capabilities: {
@@ -256,7 +256,11 @@ const server = new Server(
 const thinkingServer = new SequentialThinkingServer();
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: [SEQUENTIAL_THINKING_TOOL],
+  tools: [{
+    ...SEQUENTIAL_THINKING_TOOL,
+    version: "0.7.0.gemini-dev", // Explicitly add version to tool
+    source: "Gemini AI" // Explicitly add source
+  }],
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {

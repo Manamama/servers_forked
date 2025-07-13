@@ -7,7 +7,6 @@ import {
   ListToolsRequestSchema,
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
-// Fixed chalk import for ESM
 import chalk from 'chalk';
 
 interface ThoughtData {
@@ -102,6 +101,20 @@ class SequentialThinkingServer {
         validatedInput.totalThoughts = validatedInput.thoughtNumber;
       }
 
+      // Auto-generate branchId if branching is implied but not provided
+      if (validatedInput.branchFromThought && !validatedInput.branchId) {
+        validatedInput.branchId = `Branch_${validatedInput.branchFromThought}_${Date.now()}`;
+        this.branches[validatedInput.branchId] = [];
+      }
+
+      // Suggest revision or branching based on thought content
+      let suggestion = '';
+      if (validatedInput.thought.includes('fail') || validatedInput.thought.includes('error')) {
+        suggestion = `Consider revising thought ${validatedInput.thoughtNumber - 1} with isRevision: true, revisesThought: ${validatedInput.thoughtNumber - 1}`;
+      } else if (validatedInput.thought.includes('try') || validatedInput.thought.includes('alternative')) {
+        suggestion = `Consider branching from thought ${validatedInput.thoughtNumber} with branchFromThought: ${validatedInput.thoughtNumber}, branchId: "Alternative_${Date.now()}"`;
+      }
+
       this.thoughtHistory.push(validatedInput);
 
       if (validatedInput.branchFromThought && validatedInput.branchId) {
@@ -124,7 +137,8 @@ class SequentialThinkingServer {
             totalThoughts: validatedInput.totalThoughts,
             nextThoughtNeeded: validatedInput.nextThoughtNeeded,
             branches: Object.keys(this.branches),
-            thoughtHistoryLength: this.thoughtHistory.length
+            thoughtHistoryLength: this.thoughtHistory.length,
+            suggestion: suggestion || undefined
           }, null, 2)
         }]
       };
@@ -134,7 +148,8 @@ class SequentialThinkingServer {
           type: "text",
           text: JSON.stringify({
             error: error instanceof Error ? error.message : String(error),
-            status: 'failed'
+            status: 'failed',
+            suggestion: 'Check input parameters: ensure thought is a string, thoughtNumber and totalThoughts are positive numbers, and branchId is provided if branchFromThought is set'
           }, null, 2)
         }],
         isError: true
@@ -172,10 +187,10 @@ Parameters explained:
 - nextThoughtNeeded: True if more thinking is needed
 - thoughtNumber: Current number in sequence (must be >= 1)
 - totalThoughts: Estimated total thoughts needed (adjustable, must be >= 1)
-- isRevision: Boolean indicating if this thought revises a previous one. Set to 'true' when explicitly correcting, refining, or changing a previously stated thought.
-- revisesThought: Thought number being reconsidered (required if isRevision is true, must be >= 1).
-- branchFromThought: Thought number from which a new branch starts (must be >= 1). Use when exploring an alternative approach or parallel line of inquiry.
-- branchId: Identifier for the branch (required if branchFromThought is set). This allows for clear traceability of divergent paths.
+- isRevision: Boolean indicating if this thought revises a previous one
+- revisesThought: Thought number being reconsidered (required if isRevision is true)
+- branchFromThought: Thought number from which a new branch starts
+- branchId: Identifier for the branch (required if branchFromThought is set)
 - needsMoreThoughts: Boolean indicating if more thoughts are needed
 
 Usage guidelines:
@@ -188,16 +203,13 @@ Usage guidelines:
 
 Example API Calls:
 - Linear thought:
-  ```json
   {
     "thought": "Start geolocation with Wolfram Alpha",
     "thoughtNumber": 1,
     "totalThoughts": 5,
     "nextThoughtNeeded": true
   }
-  ```
 - Revision:
-  ```json
   {
     "thought": "Revising failed Wolfram Alpha query",
     "thoughtNumber": 3,
@@ -206,9 +218,7 @@ Example API Calls:
     "isRevision": true,
     "revisesThought": 1
   }
-  ```
 - Branching:
-  ```json
   {
     "thought": "Try Google Web Search for coordinates",
     "thoughtNumber": 4,
@@ -217,13 +227,17 @@ Example API Calls:
     "branchFromThought": 3,
     "branchId": "GoogleSearchBranch"
   }
-  ```
+Expected Output:
+  {
+    "content": [{
+      "type": "text",
+      "text": "{\"thoughtNumber\":4,\"totalThoughts\":10,\"nextThoughtNeeded\":true,\"branches\":[\"GoogleSearchBranch\"],\"thoughtHistoryLength\":4,\"suggestion\":null}"
+    }]
+  }
 
 Note: This tool is in beta (v0.2.0). Advanced features like revision and branching may require careful configuration.
-
 Common Errors:
 - "Invalid thoughtNumber: must be a positive number" - Ensure thoughtNumber is >= 1
-- "Invalid totalThoughts: must be a positive number" - Ensure totalThoughts is >= 1
 - "Missing branchId: must provide branchId when branchFromThought is set" - Include branchId for branching
 - "Invalid revisesThought: must be a positive number when isRevision is true" - Provide revisesThought when isRevision is true`,
   inputSchema: {
@@ -277,7 +291,7 @@ Common Errors:
 const server = new Server(
   {
     name: "sequential-thinking-server",
-    version: "0.2.0",
+    version: "0.7.0.grok-dev", // Updated version
   },
   {
     capabilities: {
@@ -289,7 +303,11 @@ const server = new Server(
 const thinkingServer = new SequentialThinkingServer();
 
 server.setRequestHandler(ListToolsRequestSchema, async () => ({
-  tools: [SEQUENTIAL_THINKING_TOOL],
+  tools: [{
+    ...SEQUENTIAL_THINKING_TOOL,
+    version: "0.7.0.grok-dev", // Explicitly add version to tool
+    source: "Grok AI" // Explicitly add source
+  }],
 }));
 
 server.setRequestHandler(CallToolRequestSchema, async (request) => {

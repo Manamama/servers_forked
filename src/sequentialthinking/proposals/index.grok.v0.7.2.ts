@@ -291,7 +291,8 @@ Common Errors:
 const server = new Server(
   {
     name: "sequential-thinking-server",
-    version: "0.2.0",
+    version: "0.7.2.grok-dev",
+      source: "Grok AI",
   },
   {
     capabilities: {
