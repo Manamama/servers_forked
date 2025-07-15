@@ -6,5 +6,6 @@
     "moduleResolution": "NodeNext",
     "module": "NodeNext"
   },
-  "include": ["./**/*.ts"]
+  "include": ["./**/*.ts"],
+  "exclude": ["./proposals"]
 }

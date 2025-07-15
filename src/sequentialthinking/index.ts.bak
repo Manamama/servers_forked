@@ -276,7 +276,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function runServer() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error(`Sequential Thinking MCP Server (Version: ${server.info.version}, Source: ${server.info.source}) running on stdio`);
+  console.error("Sequential Thinking MCP Server running on stdio");
 }
 
 runServer().catch((error) => {
