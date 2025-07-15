@@ -12,3 +12,8 @@ This directory contains various proposals and analyses related to the `sequentia
 *   **`index.grok.v0.7.2.ts`**: Grok AI's refined code proposal, addressing feedback and further improving the tool's robustness and guidance mechanisms.
 
 These files serve as a historical record of the design discussions and proposed implementations for the `sequentialthinking` tool.
+
+
+Added:
+
+  console.error(`Sequential Thinking MCP Server (Version: ${server.info.version}, Source: ${server.info.source}) running on stdio`);

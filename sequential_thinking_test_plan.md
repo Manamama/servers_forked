@@ -79,10 +79,10 @@ Remember to repeat steps 4-6 for each different proposal you wish to test.
 
 This section tracks the compilation status and reported version/source for each tested proposal.
 
-| Version/Proposal | Compilation Status | Reported Version | Reported Source |
-| :--------------- | :----------------- | :--------------- | :-------------- |
-| Original Version | Success            | 0.2.0            | N/A (not reported) |
-| Newest Grok's Version | Success            | 0.7.2.grok-dev   | Grok AI         |
+| Version/Proposal | Compilation Status | Reported Version | Reported Source | Fix Details |
+| :--------------- | :----------------- | :--------------- | :-------------- | :---------- |
+| Original Version | Success            | 0.2.0            | N/A (not reported) | N/A |
+| Newest Grok's Version | Success            | 0.7.2.grok-dev   | Grok AI         | Initially failed because the `Server` instance did not expose `version` and `source` directly or via an `info` property. The fix involved two steps: First, attempting to access `server.version` and `server.source` directly, which also failed. Second, the successful approach was to define a `serverMetadata` constant containing the `name`, `version`, and `source`, pass this constant to the `Server` constructor, and then reference `serverMetadata.version` and `serverMetadata.source` in the console log. This ensures proper access to the server's metadata. |
 
 ## 2. Version and Source Verification
 
