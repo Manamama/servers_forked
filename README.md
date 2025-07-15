@@ -11,7 +11,7 @@ This repository is a FORK of a collection of *reference implementations* for the
 - **[Time](src/time)** - Time and timezone conversion capabilities
 
 
-For now, only - **[Sequential Thinking](src/sequentialthinking)** - Dynamic and reflective problem-solving through thought sequences is FORKed, see here why : https://github.com/modelcontextprotocol/servers/issues/2332
+For now, only - **[Sequential Thinking](src/sequentialthinking)** - Dynamic and reflective problem-solving through thought sequences is FORKed, see here why for now : https://github.com/modelcontextprotocol/servers/issues/2332
 
 
 #ver. 1.1
