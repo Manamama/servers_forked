@@ -7,7 +7,6 @@ import {
   ListToolsRequestSchema,
   Tool,
 } from "@modelcontextprotocol/sdk/types.js";
-// Fixed chalk import for ESM
 import chalk from 'chalk';
 
 interface ThoughtData {
@@ -37,14 +36,20 @@ class SequentialThinkingServer {
     if (!data.thought || typeof data.thought !== 'string') {
       throw new Error('Invalid thought: must be a string');
     }
-    if (!data.thoughtNumber || typeof data.thoughtNumber !== 'number') {
-      throw new Error('Invalid thoughtNumber: must be a number');
+    if (!data.thoughtNumber || typeof data.thoughtNumber !== 'number' || data.thoughtNumber < 1) {
+      throw new Error('Invalid thoughtNumber: must be a positive number');
     }
-    if (!data.totalThoughts || typeof data.totalThoughts !== 'number') {
-      throw new Error('Invalid totalThoughts: must be a number');
+    if (!data.totalThoughts || typeof data.totalThoughts !== 'number' || data.totalThoughts < 1) {
+      throw new Error('Invalid totalThoughts: must be a positive number');
     }
     if (typeof data.nextThoughtNeeded !== 'boolean') {
       throw new Error('Invalid nextThoughtNeeded: must be a boolean');
+    }
+    if (data.isRevision && (typeof data.revisesThought !== 'number' || data.revisesThought < 1)) {
+      throw new Error('Invalid revisesThought: must be a positive number when isRevision is true');
+    }
+    if (data.branchFromThought && !data.branchId) {
+      throw new Error('Missing branchId: must provide branchId when branchFromThought is set');
     }
 
     return {
@@ -96,6 +101,20 @@ class SequentialThinkingServer {
         validatedInput.totalThoughts = validatedInput.thoughtNumber;
       }
 
+      // Auto-generate branchId if branching is implied but not provided
+      if (validatedInput.branchFromThought && !validatedInput.branchId) {
+        validatedInput.branchId = `Branch_${validatedInput.branchFromThought}_${Date.now()}`;
+        this.branches[validatedInput.branchId] = [];
+      }
+
+      // Suggest revision or branching based on thought content
+      let suggestion = '';
+      if (validatedInput.thought.includes('fail') || validatedInput.thought.includes('error')) {
+        suggestion = `Consider revising thought ${validatedInput.thoughtNumber - 1} with isRevision: true, revisesThought: ${validatedInput.thoughtNumber - 1}`;
+      } else if (validatedInput.thought.includes('try') || validatedInput.thought.includes('alternative')) {
+        suggestion = `Consider branching from thought ${validatedInput.thoughtNumber} with branchFromThought: ${validatedInput.thoughtNumber}, branchId: "Alternative_${Date.now()}"`;
+      }
+
       this.thoughtHistory.push(validatedInput);
 
       if (validatedInput.branchFromThought && validatedInput.branchId) {
@@ -118,7 +137,8 @@ class SequentialThinkingServer {
             totalThoughts: validatedInput.totalThoughts,
             nextThoughtNeeded: validatedInput.nextThoughtNeeded,
             branches: Object.keys(this.branches),
-            thoughtHistoryLength: this.thoughtHistory.length
+            thoughtHistoryLength: this.thoughtHistory.length,
+            suggestion: suggestion || undefined
           }, null, 2)
         }]
       };
@@ -128,7 +148,8 @@ class SequentialThinkingServer {
           type: "text",
           text: JSON.stringify({
             error: error instanceof Error ? error.message : String(error),
-            status: 'failed'
+            status: 'failed',
+            suggestion: 'Check input parameters: ensure thought is a string, thoughtNumber and totalThoughts are positive numbers, and branchId is provided if branchFromThought is set'
           }, null, 2)
         }],
         isError: true
@@ -153,46 +174,72 @@ When to use this tool:
 - Situations where irrelevant information needs to be filtered out
 
 Key features:
-- You can adjust total_thoughts up or down as you progress
-- You can question or revise previous thoughts
-- You can add more thoughts even after reaching what seemed like the end
-- You can express uncertainty and explore alternative approaches
-- Not every thought needs to build linearly - you can branch or backtrack
-- Generates a solution hypothesis
-- Verifies the hypothesis based on the Chain of Thought steps
-- Repeats the process until satisfied
-- Provides a correct answer
+- Adjust total_thoughts dynamically as you progress
+- Question or revise previous thoughts using isRevision and revisesThought
+- Branch into alternative approaches with branchFromThought and branchId
+- Express uncertainty and explore alternative strategies
+- Generate and verify solution hypotheses
+- Maintain context through thoughtHistory
+- Filter irrelevant information
 
 Parameters explained:
-- thought: Your current thinking step, which can include:
-* Regular analytical steps
-* Revisions of previous thoughts
-* Questions about previous decisions
-* Realizations about needing more analysis
-* Changes in approach
-* Hypothesis generation
-* Hypothesis verification
-- next_thought_needed: True if you need more thinking, even if at what seemed like the end
-- thought_number: Current number in sequence (can go beyond initial total if needed)
-- total_thoughts: Current estimate of thoughts needed (can be adjusted up/down)
-- is_revision: A boolean indicating if this thought revises previous thinking
-- revises_thought: If is_revision is true, which thought number is being reconsidered
-- branch_from_thought: If branching, which thought number is the branching point
-- branch_id: Identifier for the current branch (if any)
-- needs_more_thoughts: If reaching end but realizing more thoughts needed
+- thought: Current thinking step (e.g., analytical step, revision, hypothesis)
+- nextThoughtNeeded: True if more thinking is needed
+- thoughtNumber: Current number in sequence (must be >= 1)
+- totalThoughts: Estimated total thoughts needed (adjustable, must be >= 1)
+- isRevision: Boolean indicating if this thought revises a previous one
+- revisesThought: Thought number being reconsidered (required if isRevision is true)
+- branchFromThought: Thought number from which a new branch starts
+- branchId: Identifier for the branch (required if branchFromThought is set)
+- needsMoreThoughts: Boolean indicating if more thoughts are needed
 
-You should:
-1. Start with an initial estimate of needed thoughts, but be ready to adjust
-2. Feel free to question or revise previous thoughts
-3. Don't hesitate to add more thoughts if needed, even at the "end"
-4. Express uncertainty when present
-5. Mark thoughts that revise previous thinking or branch into new paths
-6. Ignore information that is irrelevant to the current step
-7. Generate a solution hypothesis when appropriate
-8. Verify the hypothesis based on the Chain of Thought steps
-9. Repeat the process until satisfied with the solution
-10. Provide a single, ideally correct answer as the final output
-11. Only set next_thought_needed to false when truly done and a satisfactory answer is reached`,
+Usage guidelines:
+1. Start with an initial estimate of totalThoughts
+2. Use isRevision/revisesThought to refine failed or suboptimal thoughts
+3. Use branchFromThought/branchId to explore alternative strategies
+4. Adjust totalThoughts if the task scope changes
+5. Express uncertainty and test multiple hypotheses when appropriate
+6. Set nextThoughtNeeded to false only when a satisfactory solution is reached
+
+Example API Calls:
+- Linear thought:
+  {
+    "thought": "Start geolocation with Wolfram Alpha",
+    "thoughtNumber": 1,
+    "totalThoughts": 5,
+    "nextThoughtNeeded": true
+  }
+- Revision:
+  {
+    "thought": "Revising failed Wolfram Alpha query",
+    "thoughtNumber": 3,
+    "totalThoughts": 10,
+    "nextThoughtNeeded": true,
+    "isRevision": true,
+    "revisesThought": 1
+  }
+- Branching:
+  {
+    "thought": "Try Google Web Search for coordinates",
+    "thoughtNumber": 4,
+    "totalThoughts": 10,
+    "nextThoughtNeeded": true,
+    "branchFromThought": 3,
+    "branchId": "GoogleSearchBranch"
+  }
+Expected Output:
+  {
+    "content": [{
+      "type": "text",
+      "text": "{\"thoughtNumber\":4,\"totalThoughts\":10,\"nextThoughtNeeded\":true,\"branches\":[\"GoogleSearchBranch\"],\"thoughtHistoryLength\":4,\"suggestion\":null}"
+    }]
+  }
+
+Note: This tool is in beta (v0.2.0). Advanced features like revision and branching may require careful configuration.
+Common Errors:
+- "Invalid thoughtNumber: must be a positive number" - Ensure thoughtNumber is >= 1
+- "Missing branchId: must provide branchId when branchFromThought is set" - Include branchId for branching
+- "Invalid revisesThought: must be a positive number when isRevision is true" - Provide revisesThought when isRevision is true`,
   inputSchema: {
     type: "object",
     properties: {
@@ -241,11 +288,14 @@ You should:
   }
 };
 
+const serverMetadata = {
+  name: "sequential-thinking-server",
+  version: "0.7.2.grok-dev",
+  source: "Grok AI",
+};
+
 const server = new Server(
-  {
-    name: "sequential-thinking-server",
-    version: "0.2.0",
-  },
+  serverMetadata,
   {
     capabilities: {
       tools: {},
@@ -276,7 +326,7 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function runServer() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error(`Sequential Thinking MCP Server (Version: ${server.info.version}, Source: ${server.info.source}) running on stdio`);
+  console.error(`Sequential Thinking MCP Server (Version: ${serverMetadata.version}, Source: ${serverMetadata.source}) running on stdio`);
 }
 
 runServer().catch((error) => {
