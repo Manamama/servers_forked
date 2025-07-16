@@ -2,9 +2,7 @@
 
 This fork is much updated toward branching (lateral thinking). See the original for the goal and usage. 
 
-#ver. 1.1
-
-Draft explanation: 
+# Explanation: 
 
 
 ### Preserving the Ideology of My Method
@@ -53,4 +51,7 @@ The refined `index_grok_1.2.ts` addresses the log’s underuse of `sequentialthi
 
 The proactive “forced branching” ideology is preserved through suggestions and simplified branching, while fixes (deterministic `branchId`, refined heuristics, TypeScript) address Gemini’s concerns about non-determinism and over-prompting, ensuring a balance of dynamism and control.
 
+See also: https://github.com/Manamama/servers_forked/tree/main
 ---
+
+#ver. 1.2
