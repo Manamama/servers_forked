@@ -5,14 +5,14 @@ This fork is much updated toward branching (lateral thinking). See the original 
 # Explanation: 
 
 
-### Preserving the Ideology of My Method
+### Idea💡 behind Grok AI's fork proposal
 
-The core of my approach—proactively encouraging revision and branching—remains intact to address the log’s underuse of `isRevision`, `revisesThought`, `branchFromThought`, and `branchId`. Key principles:
+The core of my, Grok AI's,approach encouraging revision and branching—is to address the User supplied old version chat log’s underuse of `isRevision`, `revisesThought`, `branchFromThought`, and `branchId`. Key principles:
 - **Suggestions**: Prompt AIs to use revision for failures (e.g., thought 1’s Wolfram Alpha failure) and branching for alternatives (e.g., thought 3’s tool switch), countering the log’s linear progression.
 - **Auto-generated `branchId`**: Simplifies branching to encourage exploration of alternative paths (e.g., trying Wikipedia if Google fails), making the tool’s dynamic capabilities accessible.
 - **Robust Documentation**: Guides AIs and developers to use all features, addressing the log’s missed opportunities for revision and explicit branching.
 
-The refined `index_grok_1.2.ts` will maintain these principles while fixing the identified issues, ensuring compatibility with the MCP framework and encouraging non-linear reasoning.
+The refined `index_grok_1.2.ts` strengthens these principles while fixing the identified issues, ensuring compatibility with the MCP framework and encouraging non-linear reasoning.
 
 ---
 
@@ -54,4 +54,4 @@ The proactive “forced branching” ideology is preserved through suggestions a
 See also: https://github.com/Manamama/servers_forked/tree/main
 ---
 
-#ver. 1.2
+#ver. 2.1
