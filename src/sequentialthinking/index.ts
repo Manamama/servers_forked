@@ -235,7 +235,7 @@ Expected Output:
     }]
   }
 
-Note: This tool is in beta (v0.2.0). Advanced features like revision and branching may require careful configuration.
+
 Common Errors:
 - "Invalid thoughtNumber: must be a positive number" - Ensure thoughtNumber is >= 1
 - "Missing branchId: must provide branchId when branchFromThought is set" - Include branchId for branching
@@ -290,7 +290,7 @@ Common Errors:
 
 const serverMetadata = {
   name: "sequential-thinking-server",
-  version: "0.7.2.grok-dev",
+  version: "0.7.3.grok-dev",
   source: "Grok AI",
 };
 
