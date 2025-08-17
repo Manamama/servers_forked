@@ -40,6 +40,21 @@ interface KnowledgeGraph {
 
 // The KnowledgeGraphManager class contains all operations to interact with the knowledge graph
 class KnowledgeGraphManager {
+  private fileOperationPromise = Promise.resolve();
+
+  private async _executeWithLock<T>(operation: () => Promise<T>): Promise<T> {
+    const previousPromise = this.fileOperationPromise;
+    let release: () => void;
+    this.fileOperationPromise = new Promise(r => { release = r; });
+
+    await previousPromise;
+    try {
+      return await operation();
+    } finally {
+      release!();
+    }
+  }
+
   private async loadGraph(): Promise<KnowledgeGraph> {
     try {
       const data = await fs.readFile(MEMORY_FILE_PATH, "utf-8");
@@ -67,121 +82,140 @@ class KnowledgeGraphManager {
   }
 
   async createEntities(entities: Entity[]): Promise<Entity[]> {
-    const graph = await this.loadGraph();
-    const newEntities = entities.filter(e => !graph.entities.some(existingEntity => existingEntity.name === e.name));
-    graph.entities.push(...newEntities);
-    await this.saveGraph(graph);
-    return newEntities;
+    return this._executeWithLock(async () => {
+      const graph = await this.loadGraph();
+      const newEntities = entities.filter(e => !graph.entities.some(existingEntity => existingEntity.name === e.name));
+      graph.entities.push(...newEntities);
+      await this.saveGraph(graph);
+      return newEntities;
+    });
   }
 
   async createRelations(relations: Relation[]): Promise<Relation[]> {
-    const graph = await this.loadGraph();
-    const newRelations = relations.filter(r => !graph.relations.some(existingRelation => 
-      existingRelation.from === r.from && 
-      existingRelation.to === r.to && 
-      existingRelation.relationType === r.relationType
-    ));
-    graph.relations.push(...newRelations);
-    await this.saveGraph(graph);
-    return newRelations;
+    return this._executeWithLock(async () => {
+      const graph = await this.loadGraph();
+      const newRelations = relations.filter(r => !graph.relations.some(existingRelation => 
+        existingRelation.from === r.from && 
+        existingRelation.to === r.to && 
+        existingRelation.relationType === r.relationType
+      ));
+      graph.relations.push(...newRelations);
+      await this.saveGraph(graph);
+      return newRelations;
+    });
   }
 
   async addObservations(observations: { entityName: string; contents: string[] }[]): Promise<{ entityName: string; addedObservations: string[] }[]> {
-    const graph = await this.loadGraph();
-    const results = observations.map(o => {
-      const entity = graph.entities.find(e => e.name === o.entityName);
-      if (!entity) {
-        throw new Error(`Entity with name ${o.entityName} not found`);
-      }
-      const newObservations = o.contents.filter(content => !entity.observations.includes(content));
-      entity.observations.push(...newObservations);
-      return { entityName: o.entityName, addedObservations: newObservations };
+    return this._executeWithLock(async () => {
+      const graph = await this.loadGraph();
+      const results = observations.map(o => {
+        const entity = graph.entities.find(e => e.name === o.entityName);
+        if (!entity) {
+          throw new Error(`Entity with name ${o.entityName} not found`);
+        }
+        const newObservations = o.contents.filter(content => !entity.observations.includes(content));
+        entity.observations.push(...newObservations);
+        return { entityName: o.entityName, addedObservations: newObservations };
+      });
+      await this.saveGraph(graph);
+      return results;
     });
-    await this.saveGraph(graph);
-    return results;
   }
 
   async deleteEntities(entityNames: string[]): Promise<void> {
-    const graph = await this.loadGraph();
-    graph.entities = graph.entities.filter(e => !entityNames.includes(e.name));
-    graph.relations = graph.relations.filter(r => !entityNames.includes(r.from) && !entityNames.includes(r.to));
-    await this.saveGraph(graph);
+    return this._executeWithLock(async () => {
+      const graph = await this.loadGraph();
+      graph.entities = graph.entities.filter(e => !entityNames.includes(e.name));
+      graph.relations = graph.relations.filter(r => !entityNames.includes(r.from) && !entityNames.includes(r.to));
+      await this.saveGraph(graph);
+    });
   }
 
   async deleteObservations(deletions: { entityName: string; observations: string[] }[]): Promise<void> {
-    const graph = await this.loadGraph();
-    deletions.forEach(d => {
-      const entity = graph.entities.find(e => e.name === d.entityName);
-      if (entity) {
-        entity.observations = entity.observations.filter(o => !d.observations.includes(o));
-      }
+    return this._executeWithLock(async () => {
+      const graph = await this.loadGraph();
+      deletions.forEach(d => {
+        const entity = graph.entities.find(e => e.name === d.entityName);
+        if (entity) {
+          entity.observations = entity.observations.filter(o => !d.observations.includes(o));
+        }
+      });
+      await this.saveGraph(graph);
     });
-    await this.saveGraph(graph);
   }
 
   async deleteRelations(relations: Relation[]): Promise<void> {
-    const graph = await this.loadGraph();
-    graph.relations = graph.relations.filter(r => !relations.some(delRelation => 
-      r.from === delRelation.from && 
-      r.to === delRelation.to && 
-      r.relationType === delRelation.relationType
-    ));
-    await this.saveGraph(graph);
+    return this._executeWithLock(async () => {
+      const graph = await this.loadGraph();
+      graph.relations = graph.relations.filter(r => !relations.some(delRelation => 
+        r.from === delRelation.from && 
+        r.to === delRelation.to && 
+        r.relationType === delRelation.relationType
+      ));
+      await this.saveGraph(graph);
+    });
   }
 
   async readGraph(): Promise<KnowledgeGraph> {
-    return this.loadGraph();
+    return this._executeWithLock(async () => {
+      return this.loadGraph();
+    });
   }
 
   // Very basic search function
   async searchNodes(query: string): Promise<KnowledgeGraph> {
-    const graph = await this.loadGraph();
+    return this._executeWithLock(async () => {
+      const graph = await this.loadGraph();
+      
+      // Filter entities
+      const filteredEntities = graph.entities.filter(e => 
+        e.name.toLowerCase().includes(query.toLowerCase()) ||
+        e.entityType.toLowerCase().includes(query.toLowerCase()) ||
+        e.observations.some(o => o.toLowerCase().includes(query.toLowerCase()))
+      );
     
-    // Filter entities
-    const filteredEntities = graph.entities.filter(e => 
-      e.name.toLowerCase().includes(query.toLowerCase()) ||
-      e.entityType.toLowerCase().includes(query.toLowerCase()) ||
-      e.observations.some(o => o.toLowerCase().includes(query.toLowerCase()))
-    );
-  
-    // Create a Set of filtered entity names for quick lookup
-    const filteredEntityNames = new Set(filteredEntities.map(e => e.name));
-  
-    // Filter relations to only include those between filtered entities
-    const filteredRelations = graph.relations.filter(r => 
-      filteredEntityNames.has(r.from) && filteredEntityNames.has(r.to)
-    );
-  
-    const filteredGraph: KnowledgeGraph = {
-      entities: filteredEntities,
-      relations: filteredRelations,
-    };
-  
-    return filteredGraph;
+      // Create a Set of filtered entity names for quick lookup
+      const filteredEntityNames = new Set(filteredEntities.map(e => e.name));
+    
+      // Filter relations to only include those between filtered entities
+      const filteredRelations = graph.relations.filter(r => 
+        filteredEntityNames.has(r.from) && filteredEntityNames.has(r.to)
+      );
+    
+      const filteredGraph: KnowledgeGraph = {
+        entities: filteredEntities,
+        relations: filteredRelations,
+      };
+    
+      return filteredGraph;
+    });
   }
 
   async openNodes(names: string[]): Promise<KnowledgeGraph> {
-    const graph = await this.loadGraph();
+    return this._executeWithLock(async () => {
+      const graph = await this.loadGraph();
+      
+      // Filter entities
+      const filteredEntities = graph.entities.filter(e => names.includes(e.name));
     
-    // Filter entities
-    const filteredEntities = graph.entities.filter(e => names.includes(e.name));
-  
-    // Create a Set of filtered entity names for quick lookup
-    const filteredEntityNames = new Set(filteredEntities.map(e => e.name));
-  
-    // Filter relations to only include those between filtered entities
-    const filteredRelations = graph.relations.filter(r => 
-      filteredEntityNames.has(r.from) && filteredEntityNames.has(r.to)
-    );
-  
-    const filteredGraph: KnowledgeGraph = {
-      entities: filteredEntities,
-      relations: filteredRelations,
-    };
-  
-    return filteredGraph;
+      // Create a Set of filtered entity names for quick lookup
+      const filteredEntityNames = new Set(filteredEntities.map(e => e.name));
+    
+      // Filter relations to only include those between filtered entities
+      const filteredRelations = graph.relations.filter(r => 
+        filteredEntityNames.has(r.from) && filteredEntityNames.has(r.to)
+      );
+    
+      const filteredGraph: KnowledgeGraph = {
+        entities: filteredEntities,
+        relations: filteredRelations,
+      };
+    
+      return filteredGraph;
+    });
   }
 }
+
 
 const knowledgeGraphManager = new KnowledgeGraphManager();
 
@@ -376,6 +410,10 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
+  if (name === "read_graph") {
+    return { content: [{ type: "text", text: JSON.stringify(await knowledgeGraphManager.readGraph(), null, 2) }] };
+  }
+
   if (!args) {
     throw new Error(`No arguments provided for tool: ${name}`);
   }
@@ -396,8 +434,6 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
     case "delete_relations":
       await knowledgeGraphManager.deleteRelations(args.relations as Relation[]);
       return { content: [{ type: "text", text: "Relations deleted successfully" }] };
-    case "read_graph":
-      return { content: [{ type: "text", text: JSON.stringify(await knowledgeGraphManager.readGraph(), null, 2) }] };
     case "search_nodes":
       return { content: [{ type: "text", text: JSON.stringify(await knowledgeGraphManager.searchNodes(args.query as string), null, 2) }] };
     case "open_nodes":
