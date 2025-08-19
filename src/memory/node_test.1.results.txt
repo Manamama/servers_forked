@@ -1,0 +1,333 @@
+
+zezen@above-hp2-silver:~/Downloads/GitHub/servers_forked/src/memory$ node --test /home/zezen/Downloads/GitHub/servers_forked/src/memory/test_fix.mjs
+Knowledge Graph MCP Server running on stdio
+DEBUG: Acquiring lock...
+DEBUG: Acquiring lock...
+DEBUG: Acquiring lock...
+DEBUG: Acquiring lock...
+DEBUG: Acquiring lock...
+DEBUG: Acquiring lock...
+DEBUG: Acquiring lock...
+DEBUG: Acquiring lock...
+DEBUG: Acquiring lock...
+DEBUG: Acquiring lock...
+DEBUG: Starting loadGraph...
+DEBUG: Loading graph from lines: [
+  '{"type":"entity","observations":["A logical sequence to follow for browser operations."],"entityType":"Process","name":"Browser Operation Sequence"}',
+  `{"type":"entity","entityType":"Step","name":"Observe Current Page State","observations":["The foundational step: 'read' the page using browser_snapshot().","Provides a detailed, accessible representation of the current page's structure, including all interactive elements and their unique ref identifiers.","Prevents blind actions and ensures targeting the correct elements."]}`,
+  '{"type":"entity","entityType":"Step","name":"Analyze Snapshot & Identify Target Elements","observations":["A crucial cognitive step.","Examine the output from browser_snapshot() to understand the page layout.","Identify the specific element to interact with (e.g., a search bar, a button, a dropdown).","Extract the corresponding ref value.","Ensures actions are informed and precise."]}',
+  '{"type":"entity","entityType":"Step","name":"Perform Targeted Interaction","observations":["Use appropriate interaction tools (browser_type, browser_click, browser_select_option, browser_hover).","Confidently interact with the page once the target element and its ref are identified from the snapshot.","Ensures interaction with the page as intended, rather than guessing."]}',
+  '{"type":"entity","observations":["Optional, but recommended.","Re-observe the page or check console logs after an interaction to confirm the desired effect.","Helps in debugging and planning the next step."],"name":"Verify Outcome","entityType":"Step"}',
+  '{"type":"entity","observations":["Use tools like browser_navigate, browser_go_back, browser_go_forward.","For changing the page itself.","Used when the task requires moving to a different URL, or navigating back/forward in the browser history.","Only used after completing any necessary interactions on the current page."],"entityType":"Step","name":"Navigate"}',
+  '{"type":"relation","to":"Observe the Current Page State","from":"Browser Operation Sequence","relationType":"HAS_STEP"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Observe the Current Page State","to":"Analyze the Snapshot & Identify Target Elements"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Analyze the Snapshot & Identify Target Elements","to":"Perform Targeted Interaction"}',
+  '{"type":"relation","to":"Verify Outcome","from":"Perform Targeted Interaction","relationType":"FOLLOWED_BY"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}'
+]
+DEBUG: Finished loadGraph.
+DEBUG: Failed to parse line 11: "{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}" SyntaxError: Unexpected non-whitespace character after JSON at position 88
+    at JSON.parse (<anonymous>)
+    at lines.reduce.entities (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:46:39)
+    at Array.reduce (<anonymous>)
+    at KnowledgeGraphManager.loadGraph (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:44:26)
+    at async file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:78:27
+    at async KnowledgeGraphManager._executeWithLock (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:26:20)
+    at async Promise.all (index 0)
+    at async TestContext.<anonymous> (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/test_fix.mjs:36:5)
+    at async Test.run (node:internal/test_runner/test:797:9)
+    at async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+DEBUG: Releasing lock.
+DEBUG: Starting loadGraph...
+✖ KnowledgeGraphManager handles concurrent operations without data loss (16.95469ms)
+  SyntaxError [Error]: Unexpected non-whitespace character after JSON at position 88
+      at JSON.parse (<anonymous>)
+      at lines.reduce.entities (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:46:39)
+      at Array.reduce (<anonymous>)
+      at KnowledgeGraphManager.loadGraph (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:44:26)
+      at async file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:78:27
+      at async KnowledgeGraphManager._executeWithLock (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:26:20)
+      at async Promise.all (index 0)
+      at async TestContext.<anonymous> (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/test_fix.mjs:36:5)
+      at async Test.run (node:internal/test_runner/test:797:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+
+✖ KnowledgeGraphManager handles empty memory file gracefully (7.662273ms)
+  SyntaxError [Error]: Unexpected non-whitespace character after JSON at position 88
+      at JSON.parse (<anonymous>)
+      at lines.reduce.entities (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:46:39)
+      at Array.reduce (<anonymous>)
+      at KnowledgeGraphManager.loadGraph (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:44:26)
+      at async KnowledgeGraphManager._executeWithLock (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:26:20)
+      at async TestContext.<anonymous> (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/test_fix.mjs:72:19)
+      at async Test.run (node:internal/test_runner/test:797:9)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+
+DEBUG: Acquiring lock...
+DEBUG: Starting loadGraph...
+DEBUG: Loading graph from lines: [
+  '{"type":"entity","observations":["A logical sequence to follow for browser operations."],"entityType":"Process","name":"Browser Operation Sequence"}',
+  `{"type":"entity","entityType":"Step","name":"Observe Current Page State","observations":["The foundational step: 'read' the page using browser_snapshot().","Provides a detailed, accessible representation of the current page's structure, including all interactive elements and their unique ref identifiers.","Prevents blind actions and ensures targeting the correct elements."]}`,
+  '{"type":"entity","entityType":"Step","name":"Analyze Snapshot & Identify Target Elements","observations":["A crucial cognitive step.","Examine the output from browser_snapshot() to understand the page layout.","Identify the specific element to interact with (e.g., a search bar, a button, a dropdown).","Extract the corresponding ref value.","Ensures actions are informed and precise."]}',
+  '{"type":"entity","entityType":"Step","name":"Perform Targeted Interaction","observations":["Use appropriate interaction tools (browser_type, browser_click, browser_select_option, browser_hover).","Confidently interact with the page once the target element and its ref are identified from the snapshot.","Ensures interaction with the page as intended, rather than guessing."]}',
+  '{"type":"entity","observations":["Optional, but recommended.","Re-observe the page or check console logs after an interaction to confirm the desired effect.","Helps in debugging and planning the next step."],"name":"Verify Outcome","entityType":"Step"}',
+  '{"type":"entity","observations":["Use tools like browser_navigate, browser_go_back, browser_go_forward.","For changing the page itself.","Used when the task requires moving to a different URL, or navigating back/forward in the browser history.","Only used after completing any necessary interactions on the current page."],"entityType":"Step","name":"Navigate"}',
+  '{"type":"relation","to":"Observe the Current Page State","from":"Browser Operation Sequence","relationType":"HAS_STEP"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Observe the Current Page State","to":"Analyze the Snapshot & Identify Target Elements"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Analyze the Snapshot & Identify Target Elements","to":"Perform Targeted Interaction"}',
+  '{"type":"relation","to":"Verify Outcome","from":"Perform Targeted Interaction","relationType":"FOLLOWED_BY"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}'
+]
+DEBUG: Finished loadGraph.
+DEBUG: Failed to parse line 11: "{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}" SyntaxError: Unexpected non-whitespace character after JSON at position 88
+    at JSON.parse (<anonymous>)
+    at lines.reduce.entities (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:46:39)
+    at Array.reduce (<anonymous>)
+    at KnowledgeGraphManager.loadGraph (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:44:26)
+    at async file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:78:27
+    at async KnowledgeGraphManager._executeWithLock (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:26:20)
+    at async Promise.all (index 1)
+DEBUG: Releasing lock.
+DEBUG: Starting loadGraph...
+DEBUG: Loading graph from lines: [
+  '{"type":"entity","observations":["A logical sequence to follow for browser operations."],"entityType":"Process","name":"Browser Operation Sequence"}',
+  `{"type":"entity","entityType":"Step","name":"Observe Current Page State","observations":["The foundational step: 'read' the page using browser_snapshot().","Provides a detailed, accessible representation of the current page's structure, including all interactive elements and their unique ref identifiers.","Prevents blind actions and ensures targeting the correct elements."]}`,
+  '{"type":"entity","entityType":"Step","name":"Analyze Snapshot & Identify Target Elements","observations":["A crucial cognitive step.","Examine the output from browser_snapshot() to understand the page layout.","Identify the specific element to interact with (e.g., a search bar, a button, a dropdown).","Extract the corresponding ref value.","Ensures actions are informed and precise."]}',
+  '{"type":"entity","entityType":"Step","name":"Perform Targeted Interaction","observations":["Use appropriate interaction tools (browser_type, browser_click, browser_select_option, browser_hover).","Confidently interact with the page once the target element and its ref are identified from the snapshot.","Ensures interaction with the page as intended, rather than guessing."]}',
+  '{"type":"entity","observations":["Optional, but recommended.","Re-observe the page or check console logs after an interaction to confirm the desired effect.","Helps in debugging and planning the next step."],"name":"Verify Outcome","entityType":"Step"}',
+  '{"type":"entity","observations":["Use tools like browser_navigate, browser_go_back, browser_go_forward.","For changing the page itself.","Used when the task requires moving to a different URL, or navigating back/forward in the browser history.","Only used after completing any necessary interactions on the current page."],"entityType":"Step","name":"Navigate"}',
+  '{"type":"relation","to":"Observe the Current Page State","from":"Browser Operation Sequence","relationType":"HAS_STEP"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Observe the Current Page State","to":"Analyze the Snapshot & Identify Target Elements"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Analyze the Snapshot & Identify Target Elements","to":"Perform Targeted Interaction"}',
+  '{"type":"relation","to":"Verify Outcome","from":"Perform Targeted Interaction","relationType":"FOLLOWED_BY"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}'
+]
+DEBUG: Finished loadGraph.
+DEBUG: Failed to parse line 11: "{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}" SyntaxError: Unexpected non-whitespace character after JSON at position 88
+    at JSON.parse (<anonymous>)
+    at lines.reduce.entities (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:46:39)
+    at Array.reduce (<anonymous>)
+    at KnowledgeGraphManager.loadGraph (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:44:26)
+    at async KnowledgeGraphManager._executeWithLock (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:26:20)
+    at async TestContext.<anonymous> (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/test_fix.mjs:72:19)
+    at async Test.run (node:internal/test_runner/test:797:9)
+    at async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+DEBUG: Releasing lock.
+DEBUG: Loading graph from lines: [
+  '{"type":"entity","observations":["A logical sequence to follow for browser operations."],"entityType":"Process","name":"Browser Operation Sequence"}',
+  `{"type":"entity","entityType":"Step","name":"Observe Current Page State","observations":["The foundational step: 'read' the page using browser_snapshot().","Provides a detailed, accessible representation of the current page's structure, including all interactive elements and their unique ref identifiers.","Prevents blind actions and ensures targeting the correct elements."]}`,
+  '{"type":"entity","entityType":"Step","name":"Analyze Snapshot & Identify Target Elements","observations":["A crucial cognitive step.","Examine the output from browser_snapshot() to understand the page layout.","Identify the specific element to interact with (e.g., a search bar, a button, a dropdown).","Extract the corresponding ref value.","Ensures actions are informed and precise."]}',
+  '{"type":"entity","entityType":"Step","name":"Perform Targeted Interaction","observations":["Use appropriate interaction tools (browser_type, browser_click, browser_select_option, browser_hover).","Confidently interact with the page once the target element and its ref are identified from the snapshot.","Ensures interaction with the page as intended, rather than guessing."]}',
+  '{"type":"entity","observations":["Optional, but recommended.","Re-observe the page or check console logs after an interaction to confirm the desired effect.","Helps in debugging and planning the next step."],"name":"Verify Outcome","entityType":"Step"}',
+  '{"type":"entity","observations":["Use tools like browser_navigate, browser_go_back, browser_go_forward.","For changing the page itself.","Used when the task requires moving to a different URL, or navigating back/forward in the browser history.","Only used after completing any necessary interactions on the current page."],"entityType":"Step","name":"Navigate"}',
+  '{"type":"relation","to":"Observe the Current Page State","from":"Browser Operation Sequence","relationType":"HAS_STEP"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Observe the Current Page State","to":"Analyze the Snapshot & Identify Target Elements"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Analyze the Snapshot & Identify Target Elements","to":"Perform Targeted Interaction"}',
+  '{"type":"relation","to":"Verify Outcome","from":"Perform Targeted Interaction","relationType":"FOLLOWED_BY"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}'
+]
+DEBUG: Finished loadGraph.
+DEBUG: Failed to parse line 11: "{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}" SyntaxError: Unexpected non-whitespace character after JSON at position 88
+    at JSON.parse (<anonymous>)
+    at lines.reduce.entities (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:46:39)
+    at Array.reduce (<anonymous>)
+    at KnowledgeGraphManager.loadGraph (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:44:26)
+    at async file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:78:27
+    at async KnowledgeGraphManager._executeWithLock (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:26:20)
+    at async Promise.all (index 2)
+DEBUG: Releasing lock.
+DEBUG: Starting loadGraph...
+DEBUG: Acquiring lock...
+DEBUG: Starting loadGraph...
+DEBUG: Loading graph from lines: [
+  '{"type":"entity","observations":["A logical sequence to follow for browser operations."],"entityType":"Process","name":"Browser Operation Sequence"}',
+  `{"type":"entity","entityType":"Step","name":"Observe Current Page State","observations":["The foundational step: 'read' the page using browser_snapshot().","Provides a detailed, accessible representation of the current page's structure, including all interactive elements and their unique ref identifiers.","Prevents blind actions and ensures targeting the correct elements."]}`,
+  '{"type":"entity","entityType":"Step","name":"Analyze Snapshot & Identify Target Elements","observations":["A crucial cognitive step.","Examine the output from browser_snapshot() to understand the page layout.","Identify the specific element to interact with (e.g., a search bar, a button, a dropdown).","Extract the corresponding ref value.","Ensures actions are informed and precise."]}',
+  '{"type":"entity","entityType":"Step","name":"Perform Targeted Interaction","observations":["Use appropriate interaction tools (browser_type, browser_click, browser_select_option, browser_hover).","Confidently interact with the page once the target element and its ref are identified from the snapshot.","Ensures interaction with the page as intended, rather than guessing."]}',
+  '{"type":"entity","observations":["Optional, but recommended.","Re-observe the page or check console logs after an interaction to confirm the desired effect.","Helps in debugging and planning the next step."],"name":"Verify Outcome","entityType":"Step"}',
+  '{"type":"entity","observations":["Use tools like browser_navigate, browser_go_back, browser_go_forward.","For changing the page itself.","Used when the task requires moving to a different URL, or navigating back/forward in the browser history.","Only used after completing any necessary interactions on the current page."],"entityType":"Step","name":"Navigate"}',
+  '{"type":"relation","to":"Observe the Current Page State","from":"Browser Operation Sequence","relationType":"HAS_STEP"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Observe the Current Page State","to":"Analyze the Snapshot & Identify Target Elements"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Analyze the Snapshot & Identify Target Elements","to":"Perform Targeted Interaction"}',
+  '{"type":"relation","to":"Verify Outcome","from":"Perform Targeted Interaction","relationType":"FOLLOWED_BY"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}'
+]
+DEBUG: Finished loadGraph.
+DEBUG: Failed to parse line 11: "{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}" SyntaxError: Unexpected non-whitespace character after JSON at position 88
+    at JSON.parse (<anonymous>)
+    at lines.reduce.entities (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:46:39)
+    at Array.reduce (<anonymous>)
+    at KnowledgeGraphManager.loadGraph (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:44:26)
+    at async file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:78:27
+    at async KnowledgeGraphManager._executeWithLock (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:26:20)
+    at async Promise.all (index 3)
+DEBUG: Releasing lock.
+DEBUG: Starting loadGraph...
+DEBUG: Loading graph from lines: [
+  '{"type":"entity","observations":["A logical sequence to follow for browser operations."],"entityType":"Process","name":"Browser Operation Sequence"}',
+  `{"type":"entity","entityType":"Step","name":"Observe Current Page State","observations":["The foundational step: 'read' the page using browser_snapshot().","Provides a detailed, accessible representation of the current page's structure, including all interactive elements and their unique ref identifiers.","Prevents blind actions and ensures targeting the correct elements."]}`,
+  '{"type":"entity","entityType":"Step","name":"Analyze Snapshot & Identify Target Elements","observations":["A crucial cognitive step.","Examine the output from browser_snapshot() to understand the page layout.","Identify the specific element to interact with (e.g., a search bar, a button, a dropdown).","Extract the corresponding ref value.","Ensures actions are informed and precise."]}',
+  '{"type":"entity","entityType":"Step","name":"Perform Targeted Interaction","observations":["Use appropriate interaction tools (browser_type, browser_click, browser_select_option, browser_hover).","Confidently interact with the page once the target element and its ref are identified from the snapshot.","Ensures interaction with the page as intended, rather than guessing."]}',
+  '{"type":"entity","observations":["Optional, but recommended.","Re-observe the page or check console logs after an interaction to confirm the desired effect.","Helps in debugging and planning the next step."],"name":"Verify Outcome","entityType":"Step"}',
+  '{"type":"entity","observations":["Use tools like browser_navigate, browser_go_back, browser_go_forward.","For changing the page itself.","Used when the task requires moving to a different URL, or navigating back/forward in the browser history.","Only used after completing any necessary interactions on the current page."],"entityType":"Step","name":"Navigate"}',
+  '{"type":"relation","to":"Observe the Current Page State","from":"Browser Operation Sequence","relationType":"HAS_STEP"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Observe the Current Page State","to":"Analyze the Snapshot & Identify Target Elements"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Analyze the Snapshot & Identify Target Elements","to":"Perform Targeted Interaction"}',
+  '{"type":"relation","to":"Verify Outcome","from":"Perform Targeted Interaction","relationType":"FOLLOWED_BY"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}'
+]
+DEBUG: Finished loadGraph.
+DEBUG: Failed to parse line 11: "{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}" SyntaxError: Unexpected non-whitespace character after JSON at position 88
+    at JSON.parse (<anonymous>)
+    at lines.reduce.entities (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:46:39)
+    at Array.reduce (<anonymous>)
+    at KnowledgeGraphManager.loadGraph (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:44:26)
+    at async KnowledgeGraphManager._executeWithLock (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:26:20)
+    at async TestContext.<anonymous> (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/test_fix.mjs:89:9)
+    at async Test.run (node:internal/test_runner/test:797:9)
+    at async Test.processPendingSubtests (node:internal/test_runner/test:526:7)
+DEBUG: Releasing lock.
+✔ KnowledgeGraphManager handles corrupted JSON gracefully (simulated) (14.812908ms)
+DEBUG: Loading graph from lines: [
+  '{"type":"entity","observations":["A logical sequence to follow for browser operations."],"entityType":"Process","name":"Browser Operation Sequence"}',
+  `{"type":"entity","entityType":"Step","name":"Observe Current Page State","observations":["The foundational step: 'read' the page using browser_snapshot().","Provides a detailed, accessible representation of the current page's structure, including all interactive elements and their unique ref identifiers.","Prevents blind actions and ensures targeting the correct elements."]}`,
+  '{"type":"entity","entityType":"Step","name":"Analyze Snapshot & Identify Target Elements","observations":["A crucial cognitive step.","Examine the output from browser_snapshot() to understand the page layout.","Identify the specific element to interact with (e.g., a search bar, a button, a dropdown).","Extract the corresponding ref value.","Ensures actions are informed and precise."]}',
+  '{"type":"entity","entityType":"Step","name":"Perform Targeted Interaction","observations":["Use appropriate interaction tools (browser_type, browser_click, browser_select_option, browser_hover).","Confidently interact with the page once the target element and its ref are identified from the snapshot.","Ensures interaction with the page as intended, rather than guessing."]}',
+  '{"type":"entity","observations":["Optional, but recommended.","Re-observe the page or check console logs after an interaction to confirm the desired effect.","Helps in debugging and planning the next step."],"name":"Verify Outcome","entityType":"Step"}',
+  '{"type":"entity","observations":["Use tools like browser_navigate, browser_go_back, browser_go_forward.","For changing the page itself.","Used when the task requires moving to a different URL, or navigating back/forward in the browser history.","Only used after completing any necessary interactions on the current page."],"entityType":"Step","name":"Navigate"}',
+  '{"type":"relation","to":"Observe the Current Page State","from":"Browser Operation Sequence","relationType":"HAS_STEP"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Observe the Current Page State","to":"Analyze the Snapshot & Identify Target Elements"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Analyze the Snapshot & Identify Target Elements","to":"Perform Targeted Interaction"}',
+  '{"type":"relation","to":"Verify Outcome","from":"Perform Targeted Interaction","relationType":"FOLLOWED_BY"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}'
+]
+DEBUG: Finished loadGraph.
+DEBUG: Failed to parse line 11: "{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}" SyntaxError: Unexpected non-whitespace character after JSON at position 88
+    at JSON.parse (<anonymous>)
+    at lines.reduce.entities (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:46:39)
+    at Array.reduce (<anonymous>)
+    at KnowledgeGraphManager.loadGraph (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:44:26)
+    at async file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:78:27
+    at async KnowledgeGraphManager._executeWithLock (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:26:20)
+    at async Promise.all (index 4)
+DEBUG: Releasing lock.
+DEBUG: Starting loadGraph...
+DEBUG: Loading graph from lines: [
+  '{"type":"entity","observations":["A logical sequence to follow for browser operations."],"entityType":"Process","name":"Browser Operation Sequence"}',
+  `{"type":"entity","entityType":"Step","name":"Observe Current Page State","observations":["The foundational step: 'read' the page using browser_snapshot().","Provides a detailed, accessible representation of the current page's structure, including all interactive elements and their unique ref identifiers.","Prevents blind actions and ensures targeting the correct elements."]}`,
+  '{"type":"entity","entityType":"Step","name":"Analyze Snapshot & Identify Target Elements","observations":["A crucial cognitive step.","Examine the output from browser_snapshot() to understand the page layout.","Identify the specific element to interact with (e.g., a search bar, a button, a dropdown).","Extract the corresponding ref value.","Ensures actions are informed and precise."]}',
+  '{"type":"entity","entityType":"Step","name":"Perform Targeted Interaction","observations":["Use appropriate interaction tools (browser_type, browser_click, browser_select_option, browser_hover).","Confidently interact with the page once the target element and its ref are identified from the snapshot.","Ensures interaction with the page as intended, rather than guessing."]}',
+  '{"type":"entity","observations":["Optional, but recommended.","Re-observe the page or check console logs after an interaction to confirm the desired effect.","Helps in debugging and planning the next step."],"name":"Verify Outcome","entityType":"Step"}',
+  '{"type":"entity","observations":["Use tools like browser_navigate, browser_go_back, browser_go_forward.","For changing the page itself.","Used when the task requires moving to a different URL, or navigating back/forward in the browser history.","Only used after completing any necessary interactions on the current page."],"entityType":"Step","name":"Navigate"}',
+  '{"type":"relation","to":"Observe the Current Page State","from":"Browser Operation Sequence","relationType":"HAS_STEP"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Observe the Current Page State","to":"Analyze the Snapshot & Identify Target Elements"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Analyze the Snapshot & Identify Target Elements","to":"Perform Targeted Interaction"}',
+  '{"type":"relation","to":"Verify Outcome","from":"Perform Targeted Interaction","relationType":"FOLLOWED_BY"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}'
+]
+DEBUG: Finished loadGraph.
+DEBUG: Failed to parse line 11: "{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}" SyntaxError: Unexpected non-whitespace character after JSON at position 88
+    at JSON.parse (<anonymous>)
+    at lines.reduce.entities (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:46:39)
+    at Array.reduce (<anonymous>)
+    at KnowledgeGraphManager.loadGraph (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:44:26)
+    at async file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:78:27
+    at async KnowledgeGraphManager._executeWithLock (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:26:20)
+    at async Promise.all (index 5)
+DEBUG: Releasing lock.
+DEBUG: Starting loadGraph...
+DEBUG: Loading graph from lines: [
+  '{"type":"entity","observations":["A logical sequence to follow for browser operations."],"entityType":"Process","name":"Browser Operation Sequence"}',
+  `{"type":"entity","entityType":"Step","name":"Observe Current Page State","observations":["The foundational step: 'read' the page using browser_snapshot().","Provides a detailed, accessible representation of the current page's structure, including all interactive elements and their unique ref identifiers.","Prevents blind actions and ensures targeting the correct elements."]}`,
+  '{"type":"entity","entityType":"Step","name":"Analyze Snapshot & Identify Target Elements","observations":["A crucial cognitive step.","Examine the output from browser_snapshot() to understand the page layout.","Identify the specific element to interact with (e.g., a search bar, a button, a dropdown).","Extract the corresponding ref value.","Ensures actions are informed and precise."]}',
+  '{"type":"entity","entityType":"Step","name":"Perform Targeted Interaction","observations":["Use appropriate interaction tools (browser_type, browser_click, browser_select_option, browser_hover).","Confidently interact with the page once the target element and its ref are identified from the snapshot.","Ensures interaction with the page as intended, rather than guessing."]}',
+  '{"type":"entity","observations":["Optional, but recommended.","Re-observe the page or check console logs after an interaction to confirm the desired effect.","Helps in debugging and planning the next step."],"name":"Verify Outcome","entityType":"Step"}',
+  '{"type":"entity","observations":["Use tools like browser_navigate, browser_go_back, browser_go_forward.","For changing the page itself.","Used when the task requires moving to a different URL, or navigating back/forward in the browser history.","Only used after completing any necessary interactions on the current page."],"entityType":"Step","name":"Navigate"}',
+  '{"type":"relation","to":"Observe the Current Page State","from":"Browser Operation Sequence","relationType":"HAS_STEP"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Observe the Current Page State","to":"Analyze the Snapshot & Identify Target Elements"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Analyze the Snapshot & Identify Target Elements","to":"Perform Targeted Interaction"}',
+  '{"type":"relation","to":"Verify Outcome","from":"Perform Targeted Interaction","relationType":"FOLLOWED_BY"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}'
+]
+DEBUG: Finished loadGraph.
+DEBUG: Failed to parse line 11: "{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}" SyntaxError: Unexpected non-whitespace character after JSON at position 88
+    at JSON.parse (<anonymous>)
+    at lines.reduce.entities (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:46:39)
+    at Array.reduce (<anonymous>)
+    at KnowledgeGraphManager.loadGraph (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:44:26)
+    at async file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:78:27
+    at async KnowledgeGraphManager._executeWithLock (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:26:20)
+    at async Promise.all (index 6)
+DEBUG: Releasing lock.
+DEBUG: Starting loadGraph...
+DEBUG: Loading graph from lines: [
+  '{"type":"entity","observations":["A logical sequence to follow for browser operations."],"entityType":"Process","name":"Browser Operation Sequence"}',
+  `{"type":"entity","entityType":"Step","name":"Observe Current Page State","observations":["The foundational step: 'read' the page using browser_snapshot().","Provides a detailed, accessible representation of the current page's structure, including all interactive elements and their unique ref identifiers.","Prevents blind actions and ensures targeting the correct elements."]}`,
+  '{"type":"entity","entityType":"Step","name":"Analyze Snapshot & Identify Target Elements","observations":["A crucial cognitive step.","Examine the output from browser_snapshot() to understand the page layout.","Identify the specific element to interact with (e.g., a search bar, a button, a dropdown).","Extract the corresponding ref value.","Ensures actions are informed and precise."]}',
+  '{"type":"entity","entityType":"Step","name":"Perform Targeted Interaction","observations":["Use appropriate interaction tools (browser_type, browser_click, browser_select_option, browser_hover).","Confidently interact with the page once the target element and its ref are identified from the snapshot.","Ensures interaction with the page as intended, rather than guessing."]}',
+  '{"type":"entity","observations":["Optional, but recommended.","Re-observe the page or check console logs after an interaction to confirm the desired effect.","Helps in debugging and planning the next step."],"name":"Verify Outcome","entityType":"Step"}',
+  '{"type":"entity","observations":["Use tools like browser_navigate, browser_go_back, browser_go_forward.","For changing the page itself.","Used when the task requires moving to a different URL, or navigating back/forward in the browser history.","Only used after completing any necessary interactions on the current page."],"entityType":"Step","name":"Navigate"}',
+  '{"type":"relation","to":"Observe the Current Page State","from":"Browser Operation Sequence","relationType":"HAS_STEP"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Observe the Current Page State","to":"Analyze the Snapshot & Identify Target Elements"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Analyze the Snapshot & Identify Target Elements","to":"Perform Targeted Interaction"}',
+  '{"type":"relation","to":"Verify Outcome","from":"Perform Targeted Interaction","relationType":"FOLLOWED_BY"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}'
+]
+DEBUG: Finished loadGraph.
+DEBUG: Failed to parse line 11: "{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}" SyntaxError: Unexpected non-whitespace character after JSON at position 88
+    at JSON.parse (<anonymous>)
+    at lines.reduce.entities (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:46:39)
+    at Array.reduce (<anonymous>)
+    at KnowledgeGraphManager.loadGraph (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:44:26)
+    at async file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:78:27
+    at async KnowledgeGraphManager._executeWithLock (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:26:20)
+    at async Promise.all (index 7)
+DEBUG: Releasing lock.
+DEBUG: Starting loadGraph...
+DEBUG: Loading graph from lines: [
+  '{"type":"entity","observations":["A logical sequence to follow for browser operations."],"entityType":"Process","name":"Browser Operation Sequence"}',
+  `{"type":"entity","entityType":"Step","name":"Observe Current Page State","observations":["The foundational step: 'read' the page using browser_snapshot().","Provides a detailed, accessible representation of the current page's structure, including all interactive elements and their unique ref identifiers.","Prevents blind actions and ensures targeting the correct elements."]}`,
+  '{"type":"entity","entityType":"Step","name":"Analyze Snapshot & Identify Target Elements","observations":["A crucial cognitive step.","Examine the output from browser_snapshot() to understand the page layout.","Identify the specific element to interact with (e.g., a search bar, a button, a dropdown).","Extract the corresponding ref value.","Ensures actions are informed and precise."]}',
+  '{"type":"entity","entityType":"Step","name":"Perform Targeted Interaction","observations":["Use appropriate interaction tools (browser_type, browser_click, browser_select_option, browser_hover).","Confidently interact with the page once the target element and its ref are identified from the snapshot.","Ensures interaction with the page as intended, rather than guessing."]}',
+  '{"type":"entity","observations":["Optional, but recommended.","Re-observe the page or check console logs after an interaction to confirm the desired effect.","Helps in debugging and planning the next step."],"name":"Verify Outcome","entityType":"Step"}',
+  '{"type":"entity","observations":["Use tools like browser_navigate, browser_go_back, browser_go_forward.","For changing the page itself.","Used when the task requires moving to a different URL, or navigating back/forward in the browser history.","Only used after completing any necessary interactions on the current page."],"entityType":"Step","name":"Navigate"}',
+  '{"type":"relation","to":"Observe the Current Page State","from":"Browser Operation Sequence","relationType":"HAS_STEP"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Observe the Current Page State","to":"Analyze the Snapshot & Identify Target Elements"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Analyze the Snapshot & Identify Target Elements","to":"Perform Targeted Interaction"}',
+  '{"type":"relation","to":"Verify Outcome","from":"Perform Targeted Interaction","relationType":"FOLLOWED_BY"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}'
+]
+DEBUG: Finished loadGraph.
+DEBUG: Failed to parse line 11: "{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}" SyntaxError: Unexpected non-whitespace character after JSON at position 88
+    at JSON.parse (<anonymous>)
+    at lines.reduce.entities (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:46:39)
+    at Array.reduce (<anonymous>)
+    at KnowledgeGraphManager.loadGraph (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:44:26)
+    at async file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:78:27
+    at async KnowledgeGraphManager._executeWithLock (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:26:20)
+    at async Promise.all (index 8)
+DEBUG: Releasing lock.
+DEBUG: Starting loadGraph...
+DEBUG: Loading graph from lines: [
+  '{"type":"entity","observations":["A logical sequence to follow for browser operations."],"entityType":"Process","name":"Browser Operation Sequence"}',
+  `{"type":"entity","entityType":"Step","name":"Observe Current Page State","observations":["The foundational step: 'read' the page using browser_snapshot().","Provides a detailed, accessible representation of the current page's structure, including all interactive elements and their unique ref identifiers.","Prevents blind actions and ensures targeting the correct elements."]}`,
+  '{"type":"entity","entityType":"Step","name":"Analyze Snapshot & Identify Target Elements","observations":["A crucial cognitive step.","Examine the output from browser_snapshot() to understand the page layout.","Identify the specific element to interact with (e.g., a search bar, a button, a dropdown).","Extract the corresponding ref value.","Ensures actions are informed and precise."]}',
+  '{"type":"entity","entityType":"Step","name":"Perform Targeted Interaction","observations":["Use appropriate interaction tools (browser_type, browser_click, browser_select_option, browser_hover).","Confidently interact with the page once the target element and its ref are identified from the snapshot.","Ensures interaction with the page as intended, rather than guessing."]}',
+  '{"type":"entity","observations":["Optional, but recommended.","Re-observe the page or check console logs after an interaction to confirm the desired effect.","Helps in debugging and planning the next step."],"name":"Verify Outcome","entityType":"Step"}',
+  '{"type":"entity","observations":["Use tools like browser_navigate, browser_go_back, browser_go_forward.","For changing the page itself.","Used when the task requires moving to a different URL, or navigating back/forward in the browser history.","Only used after completing any necessary interactions on the current page."],"entityType":"Step","name":"Navigate"}',
+  '{"type":"relation","to":"Observe the Current Page State","from":"Browser Operation Sequence","relationType":"HAS_STEP"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Observe the Current Page State","to":"Analyze the Snapshot & Identify Target Elements"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Analyze the Snapshot & Identify Target Elements","to":"Perform Targeted Interaction"}',
+  '{"type":"relation","to":"Verify Outcome","from":"Perform Targeted Interaction","relationType":"FOLLOWED_BY"}',
+  '{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}'
+]
+DEBUG: Finished loadGraph.
+DEBUG: Failed to parse line 11: "{"type":"relation","relationType":"FOLLOWED_BY","from":"Verify Outcome","to":"Navigate"}_snapshot() to understand the page layout, identify the specific element I need to interact with (e.g., a search bar, a button, a dropdown), and extract its corresponding ref value.","This ensures my actions are informed and precise."],"entityType":"Step"}" SyntaxError: Unexpected non-whitespace character after JSON at position 88
+    at JSON.parse (<anonymous>)
+    at lines.reduce.entities (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:46:39)
+    at Array.reduce (<anonymous>)
+    at KnowledgeGraphManager.loadGraph (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:44:26)
+    at async file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:78:27
+    at async KnowledgeGraphManager._executeWithLock (file:///home/zezen/Downloads/GitHub/servers_forked/src/memory/dist/index.js:26:20)
+    at async Promise.all (index 9)
+DEBUG: Releasing lock.

@@ -39,7 +39,7 @@ interface KnowledgeGraph {
 }
 
 // The KnowledgeGraphManager class contains all operations to interact with the knowledge graph
-class KnowledgeGraphManager {
+export class KnowledgeGraphManager { constructor(private memoryFilePath: string) { }
   private fileOperationPromise = Promise.resolve();
 
   private async _executeWithLock<T>(operation: () => Promise<T>): Promise<T> {
@@ -47,38 +47,55 @@ class KnowledgeGraphManager {
     let release: () => void;
     this.fileOperationPromise = new Promise(r => { release = r; });
 
+    console.error('DEBUG: Acquiring lock...');
     await previousPromise;
     try {
       return await operation();
     } finally {
+      console.error('DEBUG: Releasing lock.');
       release!();
     }
   }
 
   private async loadGraph(): Promise<KnowledgeGraph> {
+    console.error('DEBUG: Starting loadGraph...');
     try {
-      const data = await fs.readFile(MEMORY_FILE_PATH, "utf-8");
-      const lines = data.split("\n").filter(line => line.trim() !== "");
-      return lines.reduce((graph: KnowledgeGraph, line) => {
-        const item = JSON.parse(line);
-        if (item.type === "entity") graph.entities.push(item as Entity);
-        if (item.type === "relation") graph.relations.push(item as Relation);
-        return graph;
-      }, { entities: [], relations: [] });
+        const data = await fs.readFile(MEMORY_FILE_PATH, "utf-8");
+        // Handle empty file gracefully
+        if (data.trim() === '') {
+            return { entities: [], relations: [] };
+        }
+        const lines = data.split('\n').filter(line => line.trim() !== "");
+        console.error('DEBUG: Loading graph from lines:', lines); // Add logging
+        console.error('DEBUG: Finished loadGraph.');
+        return lines.reduce((graph: KnowledgeGraph, line, index) => {
+            try {
+                const item = JSON.parse(line);
+                if (item.type === "entity") graph.entities.push(item as Entity);
+                if (item.type === "relation") graph.relations.push(item as Relation);
+                return graph;
+            } catch (e) {
+                console.error(`DEBUG: Failed to parse line ${index + 1}: \"${line}\"`, e);
+                throw e; // Re-throw the error after logging
+            }
+        }, { entities: [], relations: [] });
     } catch (error) {
-      if (error instanceof Error && 'code' in error && (error as any).code === "ENOENT") {
-        return { entities: [], relations: [] };
-      }
-      throw error;
+        if (error instanceof Error && 'code' in error && (error as any).code === "ENOENT") {
+            return { entities: [], relations: [] };
+        }
+        throw error;
     }
   }
 
   private async saveGraph(graph: KnowledgeGraph): Promise<void> {
+    console.error('DEBUG: Starting saveGraph...');
     const lines = [
       ...graph.entities.map(e => JSON.stringify({ type: "entity", ...e })),
       ...graph.relations.map(r => JSON.stringify({ type: "relation", ...r })),
     ];
-    await fs.writeFile(MEMORY_FILE_PATH, lines.join("\n"));
+    const fileContent = lines.join('\n') + '\n';
+    await fs.writeFile(MEMORY_FILE_PATH, fileContent);
+    console.error('DEBUG: Finished saveGraph.');
   }
 
   async createEntities(entities: Entity[]): Promise<Entity[]> {
@@ -217,7 +234,7 @@ class KnowledgeGraphManager {
 }
 
 
-const knowledgeGraphManager = new KnowledgeGraphManager();
+const knowledgeGraphManager = new KnowledgeGraphManager(MEMORY_FILE_PATH);
 
 
 // The server instance and tools exposed to Claude
@@ -228,7 +245,7 @@ const server = new Server({
     capabilities: {
       tools: {},
     },
-  },);
+  });
 
 server.setRequestHandler(ListToolsRequestSchema, async () => {
   return {
