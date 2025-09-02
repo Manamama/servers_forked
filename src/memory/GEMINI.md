@@ -1,49 +1,34 @@
-# Debugging the `mcp-server-memory` Toolset
+### Master Plan: Live Knowledge Graph Visualizer (Final)
 
-This document is about `mcp-server-memory` toolset, which was found to be non-functional.
+1.  **Goal:** Integrate a simple, web-based visualizer directly into the existing `memory-server`.
 
-## Sequence of Events & Errors
+2.  **Architecture & Lifecycle:**
+    *   **No New Dependencies:** The solution will use only the built-in Node.js `http` module.
+    *   **Ephemeral, Integrated HTTP Server:** A lightweight HTTP server will be launched from the `main` function in `index.ts`. It will only be active when the main `memory-server` process is awake.
+    *   **Dynamic Port:** The server will find and use an available port, starting from 4000, to avoid conflicts.
 
-Several tools from the `mcp-server-memory` toolset were tested. Every attempted call failed.
+3.  **Implementation:**
+    *   When a browser requests the server's URL, the server will, in that moment:
+        1.  Read the `memory.jsonl` file.
+        2.  Generate a Mermaid.js diagram string from the file's content.
+        3.  Construct a self-contained HTML page as a string.
+        4.  This HTML will include the Mermaid.js library (from a CDN) and a meta-refresh tag (e.g., every 5 seconds).
+        5.  The complete HTML page is sent as the response.
 
-**TUI-Reported Errors:**
-The user-facing TUI consistently reported the same error for all attempted operations:
-- **Error Message:** `MCP error -32603: Unexpected non-whitespace character after JSON at position 88`
-- **Affected Tools:** `create_entities`, `read_graph`, `search_nodes`
-
-**Gemini-Reported Errors:**
-The raw error output reported to the Gemini agent showed varying positions for the error:
-- `create_entities` (with observation): `... at position 88`
-- `create_entities` (simple): `... at position 69`
-- `search_nodes`: `... at position 34`
-
-## Discrepancy Analysis
-
-The key discrepancy was the difference between the static error position (88) reported by the user's TUI and the variable positions (88, 69, 34) reported to the agent.
-
-- The variable positions reported to the agent correspond directly to the length of the JSON payload for each unique command. This strongly suggests the server was failing at the very end of the input stream.
-- The TUI likely captured the first error and displayed it repeatedly, which is a plausible explanation for the consistent "position 88" error message. The additional `API Error: Cannot read properties of undefined (reading 'error')` in the TUI log supports the idea that the TUI itself had issues handling the repeated failures.
-
-The `mcp-server-memory` toolset is  broken. The issue is not with the specific tools or the content of the commands, but with the server's core ability to handle or parse incoming requests. The server fails consistently at the end of the data stream, indicating a critical bug in its request handling logic.
+4.  **User Experience (The "Live" Effect):**
+    *   The user opens the visualizer URL in a browser.
+    *   The browser gets the page and starts auto-refreshing.
+    *   Most refresh attempts will fail because the server is not running.
+    *   When the user performs an action that wakes up the `memory-server`, the next browser refresh will succeed, displaying the updated graph.
 
 ---
 
-## Update: Investigation of the Ineffective Fix
+### Lessons Learned
 
-Following the initial analysis, the next step was to determine why the documented fix was not working. The investigation confirmed that the issue is not with the code, but with the environment configuration.
+1.  **MCP Server Lifecycle:** MCP servers like `mcp-server-memory` are not persistent daemons. They are ephemeral processes, activated on-demand by the Gemini CLI for a specific tool call. Any integration must be designed around this temporary, on-demand lifecycle.
 
-### Summary of Findings
+2.  **Leverage the Browser:** The browser is a persistent environment. A server can deliver a self-contained application (HTML with JavaScript and meta-refresh tags) in a single response. The browser can then handle tasks like polling or refreshing, simplifying the server-side logic immensely. An ephemeral server can still provide a "live" experience.
 
-The legacy fix may be wrong. 
-
-1.  **The legacy Fix is in the Source Code:** An analysis of `/home/zezen/Downloads/GitHub/servers_forked/src/memory/index.ts` confirms that the locking mechanism to prevent race conditions is correctly implemented.
-2.  **The Code Has Been Compiled:** The presence of the `dist/` directory and the `dist/index.js` file confirms that the corrected TypeScript source code has been successfully compiled into runnable JavaScript.
-3.  **Conclusion:** The code itself is suspect.
-
-*For details on the previous debugging that led to the fix, see the files in the `Debug_materials/` directory.*
-
-### Plan for Resolution
-
-The following steps are required to force the environment to use the correct, locally compiled server, which should resolve the `"Unexpected non-whitespace character..."` error.
- 
-See /home/zezen/Downloads/GitHub/servers_forked/src/memory/specs folder
+3.  **Collaboration & Planning:**
+    *   A plan is a tool for alignment, not a bureaucratic step. It's essential for ensuring we agree on the goal and the path before execution.
+    *   My role is to execute an approved plan autonomously, not to ask for permission at every sub-step. Rushing to execute without a clear, shared understanding is wrong, as is rigidly following a plan when new information emerges. The plan must be a living document, adapted through conversation.

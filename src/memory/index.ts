@@ -9,9 +9,11 @@ import {
 import { promises as fs } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import http from 'http';
+import net from 'net';
 
 // Define memory file path using environment variable with fallback
-const defaultMemoryPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'memory.json');
+const defaultMemoryPath = path.join(path.dirname(fileURLToPath(import.meta.url)), 'memory.jsonl');
 
 // If MEMORY_FILE_PATH is just a filename, put it in the same directory as the script
 const MEMORY_FILE_PATH = process.env.MEMORY_FILE_PATH
@@ -39,7 +41,7 @@ interface KnowledgeGraph {
 }
 
 // The KnowledgeGraphManager class contains all operations to interact with the knowledge graph
-export class KnowledgeGraphManager { constructor(private memoryFilePath: string) { }
+export class KnowledgeGraphManager { constructor(private memoryFilePath: string) { } 
   private fileOperationPromise = Promise.resolve();
 
   private async _executeWithLock<T>(operation: () => Promise<T>): Promise<T> {
@@ -47,18 +49,15 @@ export class KnowledgeGraphManager { constructor(private memoryFilePath: string)
     let release: () => void;
     this.fileOperationPromise = new Promise(r => { release = r; });
 
-    console.error('DEBUG: Acquiring lock...');
     await previousPromise;
     try {
       return await operation();
     } finally {
-      console.error('DEBUG: Releasing lock.');
       release!();
     }
   }
 
   private async loadGraph(): Promise<KnowledgeGraph> {
-    console.error('DEBUG: Starting loadGraph...');
     try {
         const data = await fs.readFile(MEMORY_FILE_PATH, "utf-8");
         // Handle empty file gracefully
@@ -66,8 +65,6 @@ export class KnowledgeGraphManager { constructor(private memoryFilePath: string)
             return { entities: [], relations: [] };
         }
         const lines = data.split('\n').filter(line => line.trim() !== "");
-        console.error('DEBUG: Loading graph from lines:', lines); // Add logging
-        console.error('DEBUG: Finished loadGraph.');
         return lines.reduce((graph: KnowledgeGraph, line, index) => {
             try {
                 const item = JSON.parse(line);
@@ -75,7 +72,6 @@ export class KnowledgeGraphManager { constructor(private memoryFilePath: string)
                 if (item.type === "relation") graph.relations.push(item as Relation);
                 return graph;
             } catch (e) {
-                console.error(`DEBUG: Failed to parse line ${index + 1}: \"${line}\"`, e);
                 throw e; // Re-throw the error after logging
             }
         }, { entities: [], relations: [] });
@@ -88,14 +84,12 @@ export class KnowledgeGraphManager { constructor(private memoryFilePath: string)
   }
 
   private async saveGraph(graph: KnowledgeGraph): Promise<void> {
-    console.error('DEBUG: Starting saveGraph...');
     const lines = [
       ...graph.entities.map(e => JSON.stringify({ type: "entity", ...e })),
       ...graph.relations.map(r => JSON.stringify({ type: "relation", ...r })),
     ];
     const fileContent = lines.join('\n') + '\n';
     await fs.writeFile(MEMORY_FILE_PATH, fileContent);
-    console.error('DEBUG: Finished saveGraph.');
   }
 
   async createEntities(entities: Entity[]): Promise<Entity[]> {
@@ -231,6 +225,29 @@ export class KnowledgeGraphManager { constructor(private memoryFilePath: string)
       return filteredGraph;
     });
   }
+
+  async visualizeGraph(): Promise<string> {
+    return this._executeWithLock(async () => {
+        const graph = await this.loadGraph();
+        let mermaid = "graph TD\n";
+
+        // Add entities
+        graph.entities.forEach(entity => {
+            const sanitizedName = entity.name.replace(/[^a-zA-Z0-9_]/g, "");
+            mermaid += `    ${sanitizedName}["${entity.name}"]\n`;
+        });
+
+        // Add relations
+        graph.relations.forEach(relation => {
+            const sanitizedFrom = relation.from.replace(/[^a-zA-Z0-9_]/g, "");
+            const sanitizedTo = relation.to.replace(/[^a-zA-Z0-9_]/g, "");
+            const relationType = relation.relationType || "relates";
+            mermaid += `    ${sanitizedFrom} -- ${relationType} --> ${sanitizedTo}\n`;
+        });
+
+        return mermaid;
+    });
+  }
 }
 
 
@@ -240,7 +257,7 @@ const knowledgeGraphManager = new KnowledgeGraphManager(MEMORY_FILE_PATH);
 // The server instance and tools exposed to Claude
 const server = new Server({
   name: "memory-server",
-  version: "0.6.3",
+  version: "0.6.4",
 },    {
     capabilities: {
       tools: {},
@@ -460,10 +477,67 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   }
 });
 
+function startVisualizationServer(port: number) {
+  const server = http.createServer(async (req, res) => {
+    if (req.url === '/') {
+      try {
+        const mermaidDiagram = await knowledgeGraphManager.visualizeGraph();
+        const html = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Knowledge Graph</title>
+              <meta http-equiv="refresh" content="5">
+            </head>
+            <body>
+              <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+              <script>mermaid.initialize({startOnLoad:true});</script>
+              <div class="mermaid">
+                ${mermaidDiagram}
+              </div>
+            </body>
+          </html>
+        `;
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(html);
+      } catch (error) {
+        res.writeHead(500, { 'Content-Type': 'text/plain' });
+        res.end('Error generating graph');
+        console.error('Error in visualization server:', error);
+      }
+    } else {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('Not Found');
+    }
+  });
+
+  server.listen(port, () => {
+    console.error(`Visualization server running at http://localhost:${port}/");
+  });
+}
+
+async function findFreePort(startPort: number): Promise<number> {
+    return new Promise((resolve, reject) => {
+        const server = net.createServer();
+        server.unref();
+        server.on('error', () => {
+            resolve(findFreePort(startPort + 1));
+        });
+        server.listen(startPort, () => {
+            const port = (server.address() as net.AddressInfo).port;
+            server.close(() => {
+                resolve(port);
+            });
+        });
+    });
+}
+
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("Knowledge Graph MCP Server running on stdio");
+  const port = await findFreePort(4000);
+  startVisualizationServer(port);
 }
 
 main().catch((error) => {
